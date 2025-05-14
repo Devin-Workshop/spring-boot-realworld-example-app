@@ -8,8 +8,10 @@ plugins {
 }
 
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 
 repositories {
     mavenLocal()
@@ -56,4 +58,12 @@ drill {
     adminHost = "localhost"
     adminPort = 9090
     logLevel = com.epam.drill.agent.runner.LogLevels.INFO
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += [
+        '--add-exports', 'jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED',
+        '--add-exports', 'jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
+        '--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED'
+    ]
 }
