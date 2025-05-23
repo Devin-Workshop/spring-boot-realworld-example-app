@@ -1,8 +1,11 @@
 package io.spring.api;
 
 import io.spring.application.HolidayQueryService;
+import io.spring.application.data.HolidayData;
 import java.util.HashMap;
+import java.util.Map;
 import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -26,20 +29,22 @@ public class HolidayApi {
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           DateTime referenceDate) {
 
+    HolidayData holidayData;
     if (referenceDate != null) {
-      return ResponseEntity.ok(
-          new HashMap<String, Object>() {
-            {
-              put("holiday", holidayQueryService.findNextHoliday(referenceDate));
-            }
-          });
+      holidayData = holidayQueryService.findNextHoliday(referenceDate);
     } else {
-      return ResponseEntity.ok(
-          new HashMap<String, Object>() {
-            {
-              put("holiday", holidayQueryService.findNextHoliday());
-            }
-          });
+      holidayData = holidayQueryService.findNextHoliday();
     }
+
+    Map<String, Object> holidayFields = new HashMap<>();
+    holidayFields.put("name", holidayData.getName());
+    holidayFields.put(
+        "date", ISODateTimeFormat.dateTime().withZoneUTC().print(holidayData.getDate()));
+    holidayFields.put("daysRemaining", holidayData.getDaysRemaining());
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("holiday", holidayFields);
+
+    return ResponseEntity.ok(response);
   }
 }
