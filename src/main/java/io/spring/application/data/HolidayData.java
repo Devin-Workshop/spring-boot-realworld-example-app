@@ -14,7 +14,4 @@ public class HolidayData {
   private String name;
   private DateTime date;
   private long daysRemaining;
-  private long hoursRemaining;
-  private long minutesRemaining;
-  private long secondsRemaining;
 }

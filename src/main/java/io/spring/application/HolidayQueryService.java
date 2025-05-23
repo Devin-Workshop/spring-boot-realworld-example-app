@@ -4,43 +4,34 @@ import io.spring.application.data.HolidayData;
 import java.util.TreeMap;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
-import org.joda.time.Hours;
-import org.joda.time.Minutes;
-import org.joda.time.Seconds;
 import org.springframework.stereotype.Service;
 
 @Service
 public class HolidayQueryService {
 
   public HolidayData findNextHoliday() {
-    DateTime now = new DateTime();
-    TreeMap<DateTime, String> holidays = getHolidaysForCurrentYear(now);
+    return findNextHoliday(new DateTime());
+  }
 
-    holidays.putAll(getHolidaysForYear(now.getYear() + 1));
+  public HolidayData findNextHoliday(DateTime referenceDate) {
+    TreeMap<DateTime, String> holidays = getHolidaysForCurrentYear(referenceDate);
+
+    holidays.putAll(getHolidaysForYear(referenceDate.getYear() + 1));
 
     DateTime nextHolidayDate = null;
     String nextHolidayName = null;
 
     for (DateTime date : holidays.keySet()) {
-      if (date.isAfter(now)) {
+      if (date.isAfter(referenceDate)) {
         nextHolidayDate = date;
         nextHolidayName = holidays.get(date);
         break;
       }
     }
 
-    long daysRemaining = Days.daysBetween(now, nextHolidayDate).getDays();
-    long hoursRemaining = Hours.hoursBetween(now, nextHolidayDate).getHours() % 24;
-    long minutesRemaining = Minutes.minutesBetween(now, nextHolidayDate).getMinutes() % 60;
-    long secondsRemaining = Seconds.secondsBetween(now, nextHolidayDate).getSeconds() % 60;
+    long daysRemaining = Days.daysBetween(referenceDate, nextHolidayDate).getDays();
 
-    return new HolidayData(
-        nextHolidayName,
-        nextHolidayDate,
-        daysRemaining,
-        hoursRemaining,
-        minutesRemaining,
-        secondsRemaining);
+    return new HolidayData(nextHolidayName, nextHolidayDate, daysRemaining);
   }
 
   private TreeMap<DateTime, String> getHolidaysForCurrentYear(DateTime now) {
